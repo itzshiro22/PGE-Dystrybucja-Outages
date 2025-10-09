@@ -8,8 +8,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/gregopl/PGE-Dystrybucja-Outages)](https://github.com/gregopl/PGE-Dystrybucja-Outages/commits/main)
 
----
-
 ## 🇵🇱 PL (Polski)
 
 Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne przerwy w dostawie prądu dla wybranego **miasta + ulicy** z **PGE Dystrybucja**.
@@ -77,8 +75,6 @@ Custom integration for Home Assistant that fetches planned/active power outages 
 
 ### Requirements / Icons
 - No extra dependencies — uses Home Assistant’s built-in stack.
-
----
 
 ## Credits / Notes
 - Unofficial integration. Uses public API used by the PGE’s websites: `https://pgedystrybucja.pl/wylaczenia/planowane-wylaczenia` and `https://pgedystrybucja.pl/wylaczenia/aktualne-przerwy-w-dostawie-energii` (API URLs: `falcon.gkpge.pl`, `power-outage.gkpge.pl`)
