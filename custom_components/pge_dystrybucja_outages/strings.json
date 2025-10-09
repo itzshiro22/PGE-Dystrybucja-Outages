@@ -11,7 +11,10 @@
       },
       "pick_city": {
         "title": "Select city",
-        "description": "We found multiple matches. Pick the correct city."
+        "description": "We found multiple matches. Pick the correct city.",
+        "data": {
+          "city_sym": "Cities"
+        }
       },
       "street": {
         "title": "Provide street",
@@ -22,7 +25,10 @@
       },
       "pick_street": {
         "title": "Select street",
-        "description": "We found multiple matches. Pick the correct street."
+        "description": "We found multiple matches. Pick the correct street.",
+        "data": {
+          "street_sym": "Streets"
+        }
       },
       "calendar": {
         "title": "Select calendar",

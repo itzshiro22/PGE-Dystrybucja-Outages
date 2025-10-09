@@ -17,13 +17,27 @@ class PGEApi:
     def __init__(self, session: aiohttp.ClientSession):
         self._session = session
 
-    async def fetch(self, *, page: int = 0, size: int = 500, city_sym: str | None = None, street_sym: str | None = None,
-                    **query: Any) -> Dict[str, Any]:
+    async def fetch(
+        self,
+        *,
+        page: int = 0,
+        size: int = 500,
+        city_sym: str | None = None,
+        street_sym: str | None = None,
+        **query: Any,
+    ) -> Dict[str, Any]:
+        """Fetch outages.
+        Supports:
+        - City + street: type=teryt&citySym=...&streetSym=...
+        - City only:     type=teryt&citySym=...
+        """
         params: Dict[str, Any] = {"page": page, "size": size}
-        if city_sym and street_sym:
+
+        if city_sym:
             params["type"] = "teryt"
             params["citySym"] = city_sym
-            params["streetSym"] = street_sym
+            if street_sym:
+                params["streetSym"] = street_sym
         else:
             return {"items": []}
 

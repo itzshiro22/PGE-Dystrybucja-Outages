@@ -45,11 +45,24 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._calendar_entity: str | None = None
         self._cand_cities: List[Tuple[str, str]] = []  # (label, sym)
         self._cand_streets: List[Tuple[str, str]] = []  # (label, sym)
+        self._city_has_streets: bool | None = None
 
     async def _get_json(self, url: str, params: dict):
         session = async_get_clientsession(self.hass)
         async with session.get(url, params=params, headers=HEADERS, timeout=TIMEOUT) as resp:
             return await resp.json(content_type=None)
+
+    async def _check_city_has_streets(self, city_sym: str) -> bool:
+        """Return True if Falcon reports at least one street for the city.
+        We call with empty name; if API returns a list with length > 0, consider it has streets.
+        If API shape is unexpected, default to True (keep old behavior).
+        """
+        try:
+            data = await self._get_json(f"{FALCON_BASE}/street", {"citySym": city_sym, "name": ""})
+            return isinstance(data, list) and len(data) > 0
+        except Exception:
+            # On any error, assume streets exist to keep normal flow
+            return True
 
     async def async_step_user(self, user_input=None):
         errors = {}
@@ -63,7 +76,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             c = data[0]
                             self._city_sym = str(c.get("citySym"))
                             self._city_label = f"{c.get('voivodeshipName')} / {c.get('countyName')} / {c.get('cityName')}"
-                            return await self.async_step_street()
+                            self._city_has_streets = await self._check_city_has_streets(self._city_sym)
+                            if self._city_has_streets:
+                                return await self.async_step_street()
+                            else:
+                                # Skip street step, proceed to calendar
+                                self._street_sym = None
+                                self._street_label = ""
+                                return await self.async_step_calendar()
                         else:
                             self._cand_cities = [
                                 (f"{c.get('voivodeshipName')} / {c.get('countyName')} / {c.get('cityName')} [{c.get('citySym')}]", str(c.get('citySym')))
@@ -91,11 +111,23 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if s == sym:
                     self._city_sym = s
                     self._city_label = _strip_sym(label)
-                    return await self.async_step_street()
+                    self._city_has_streets = await self._check_city_has_streets(self._city_sym)
+                    if self._city_has_streets:
+                        return await self.async_step_street()
+                    else:
+                        self._street_sym = None
+                        self._street_label = ""
+                        return await self.async_step_calendar()
         return self.async_abort(reason="city_required")
 
     async def async_step_street(self, user_input=None):
         errors = {}
+        # If a previous check determined there are no streets, skip
+        if self._city_has_streets is False:
+            self._street_sym = None
+            self._street_label = ""
+            return await self.async_step_calendar()
+
         if user_input is not None:
             street = (user_input.get(CONF_STREET) or "").strip()
             if street:
@@ -139,7 +171,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             cal = user_input.get(CONF_CALENDAR_ENTITY)
             if cal:
-                unique_id = f"{self._city_sym}_{self._street_sym}"
+                unique_id = f"{self._city_sym}_{self._street_sym or 'ALL'}"
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured()
 
@@ -150,7 +182,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_CITY_LABEL: self._city_label or "",
                     CONF_STREET_LABEL: self._street_label or "",
                 }
-                title = f"{self._city_label}, {self._street_label}".strip(", ")
+                title = f"{self._city_label}{(', ' + self._street_label) if self._street_label else ''}".strip()
                 return self.async_create_entry(title=title, data=data)
             else:
                 errors[CONF_CALENDAR_ENTITY] = "calendar_required"
