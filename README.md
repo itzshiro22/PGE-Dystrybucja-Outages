@@ -1,4 +1,4 @@
-# PGE Dystrybucja Outages / PGE Dystrybucja Wyłączenia
+# PGE Dystrybucja Wyłączenia | PGE Dystrybucja Outages
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-blue.svg)](https://hacs.xyz/)
 ![Version](https://img.shields.io/badge/version-0.1.1-green.svg)
@@ -8,12 +8,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/gregopl/PGE-Dystrybucja-Outages)](https://github.com/gregopl/PGE-Dystrybucja-Outages/commits/main)
 
-Custom integration for Home Assistant that fetches planned/active power outages for a selected **city + street** from **PGE Dystrybucja**.  
-Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne przerwy w dostawie prądu dla wybranego **miasta + ulicy** z **PGE Dystrybucja**.
-
 ---
 
 ## 🇵🇱 PL (Polski)
+
+Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne przerwy w dostawie prądu dla wybranego **miasta + ulicy** z **PGE Dystrybucja**.
 
 ### Funkcje
 - Sensor pokazujący **liczbę godzin do najbliższego wyłączenia** (wartość zaokrąglona w dół).
@@ -43,12 +42,14 @@ Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne prze
 - Brak dodatkowych zależności (korzysta z bibliotek HA).
 
 ##  Uwagi
-- Nieoficjalna integracja. Wykorzystuje publiczne API używane przez strony internetowe PGE: `https://pgedystrybucja.pl/wylaczenia/planowane-wylaczenia` and `https://pgedystrybucja.pl/wylaczenia/aktualne-przerwy-w-dostawie-energii` (API URLs: `falcon.gkpge.pl`, `power-outage.gkpge.pl`)
+- Nieoficjalna integracja. Wykorzystuje publiczne API używane przez strony internetowe PGE: `https://pgedystrybucja.pl/wylaczenia/planowane-wylaczenia` i `https://pgedystrybucja.pl/wylaczenia/aktualne-przerwy-w-dostawie-energii` (API URLs: `falcon.gkpge.pl`, `power-outage.gkpge.pl`)
 - Autor: @gregopl.
 
 ---
 
 ## 🇬🇧 EN (English)
+
+Custom integration for Home Assistant that fetches planned/active power outages for a selected **city + street** from **PGE Dystrybucja**.
 
 ### Features
 - A sensor showing **number of hours until the next outage** (floored).
