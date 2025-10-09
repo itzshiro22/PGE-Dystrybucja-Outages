@@ -23,6 +23,13 @@
           "street": "Street"
         }
       },
+      "pick_street_small": {
+        "title": "Select street or skip",
+        "description": "We found a short list of streets. Pick one or choose Skip to monitor the whole city.",
+        "data": {
+          "street_sym": "Streets"
+        }
+      },
       "pick_street": {
         "title": "Select street",
         "description": "We found multiple matches. Pick the correct street.",

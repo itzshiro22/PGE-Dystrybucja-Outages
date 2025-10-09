@@ -23,6 +23,13 @@
           "street": "Ulica"
         }
       },
+      "pick_street_small": {
+        "title": "Wybierz ulicę lub pomiń",
+        "description": "Znaleźliśmy krótką listę ulic. Wybierz jedną lub kliknij Pomiń, aby monitorować całą miejscowość.",
+        "data": {
+          "street_sym": "Ulice"
+        }
+      },
       "pick_street": {
         "title": "Wybierz ulicę",
         "description": "Znaleziono kilka pozycji. Wybierz właściwą ulicę.",
