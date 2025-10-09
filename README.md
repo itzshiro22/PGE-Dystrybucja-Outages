@@ -40,7 +40,7 @@ Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne prze
 
 ##  Uwagi
 - Nieoficjalna integracja. Wykorzystuje publiczne API używane przez strony internetowe PGE: `https://pgedystrybucja.pl/wylaczenia/planowane-wylaczenia` i `https://pgedystrybucja.pl/wylaczenia/aktualne-przerwy-w-dostawie-energii` (API URLs: `falcon.gkpge.pl`, `power-outage.gkpge.pl`)
-- Autor: @gregopl.
+- Autor: @gregopl. <a href="https://www.buymeacoffee.com/gregopl" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 27px !important;width: 98px !important;" ></a>
 
 ---
 
@@ -77,4 +77,4 @@ Custom integration for Home Assistant that fetches planned/active power outages 
 
 ## Credits / Notes
 - Unofficial integration. Uses public API used by the PGE’s websites: `https://pgedystrybucja.pl/wylaczenia/planowane-wylaczenia` and `https://pgedystrybucja.pl/wylaczenia/aktualne-przerwy-w-dostawie-energii` (API URLs: `falcon.gkpge.pl`, `power-outage.gkpge.pl`)
-- Author: @gregopl.
+- Author: @gregopl. <a href="https://www.buymeacoffee.com/gregopl" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 27px !important;width: 98px !important;" ></a>
