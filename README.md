@@ -1,11 +1,10 @@
 # PGE Dystrybucja Wyłączenia | PGE Dystrybucja Outages
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-blue.svg)](https://hacs.xyz/)
-![Version](https://img.shields.io/badge/version-0.1.1-green.svg)
-[![Downloads](https://img.shields.io/github/downloads/gregopl/PGE-Dystrybucja-Outages/total)](https://github.com/gregopl/PGE-Dystrybucja-Outages/releases)
+![Version](https://img.shields.io/badge/version-0.1.3-green.svg)
 [![Issues](https://img.shields.io/github/issues/gregopl/PGE-Dystrybucja-Outages)](https://github.com/gregopl/PGE-Dystrybucja-Outages/issues)
 [![Stars](https://img.shields.io/github/stars/gregopl/PGE-Dystrybucja-Outages?style=social)](https://github.com/gregopl/PGE-Dystrybucja-Outages/stargazers)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/gregopl/PGE-Dystrybucja-Outages/blob/main/LICENSE)
 [![Last commit](https://img.shields.io/github/last-commit/gregopl/PGE-Dystrybucja-Outages)](https://github.com/gregopl/PGE-Dystrybucja-Outages/commits/main)
 
 ## 🇵🇱 PL (Polski)
