@@ -75,15 +75,24 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         streets = await self._list_city_streets(self._city_sym)
         if streets is not None and len(streets) <= 5:
             self._small_street_list = [(s.get("name"), str(s.get("symUl"))) for s in streets]
+
             lang = (self.hass.config.language or "en").lower()
-            label_name = "Ulice" if lang.startswith("pl") else "Streets"
             skip_label = "Pomiń" if lang.startswith("pl") else "Skip"
-            options = {SKIP_STREET_TOKEN: skip_label}
+
+            # Build selector options with labels to avoid raw key as label
+            options = [{"label": skip_label, "value": SKIP_STREET_TOKEN}]
             for name, sym in self._small_street_list:
-                options[sym] = name
-            schema = vol.Schema({vol.Required(CONF_STREET_SYM, description={"name": label_name}): vol.In(options)})
-            self._cand_streets = [(name, sym) for name, sym in self._small_street_list]
-            self._small_schema = schema
+                options.append({"label": name, "value": sym})
+
+            # Use a selector(select) so Home Assistant renders a proper label from translations
+            # (strings.json / translations provide "Streets"/"Ulice" for 'street_sym')
+            street_selector = selector({
+                "select": {
+                    "options": options,
+                    "mode": "list"
+                }
+            })
+            self._small_schema = vol.Schema({vol.Required(CONF_STREET_SYM): street_selector})
             return True
         return False
 
@@ -113,6 +122,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 for c in data
                             ]
                             options = {sym: label for (label, sym) in self._cand_cities}
+                            # Also enforce a readable label for city picker
                             lang = (self.hass.config.language or "en").lower()
                             label_name = "Miasta" if lang.startswith("pl") else "Cities"
                             schema = vol.Schema({vol.Required(CONF_CITY_SYM, description={"name": label_name}): vol.In(options)})
