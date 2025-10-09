@@ -1,0 +1,10 @@
+{
+  "name": "PGE Dystrybucja Outages",
+  "content_in_root": false,
+  "domains": [
+    "pge_dystrybucja_outages"
+  ],
+  "country": "PL",
+  "render_readme": true,
+  "homeassistant": "2023.8.0"
+}

@@ -1,0 +1,15 @@
+{
+  "domain": "pge_dystrybucja_outages",
+  "name": "PGE Dystrybucja Outages",
+  "version": "0.1.0",
+  "config_flow": true,
+  "documentation": "https://github.com/gregopl/PGE-Dystrybucja-Outages#readme",
+  "issue_tracker": "https://github.com/gregopl/PGE-Dystrybucja-Outages/issues",
+  "requirements": [],
+  "codeowners": [
+    "@gregopl"
+  ],
+  "iot_class": "cloud_polling",
+  "logo": "logo.png",
+  "icon": "icon.png"
+}
