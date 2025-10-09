@@ -78,3 +78,57 @@ Custom integration for Home Assistant that fetches planned/active power outages 
 ## Credits / Notes
 - Unofficial integration. Uses public API used by the PGE’s websites: `https://pgedystrybucja.pl/wylaczenia/planowane-wylaczenia` and `https://pgedystrybucja.pl/wylaczenia/aktualne-przerwy-w-dostawie-energii` (API URLs: `falcon.gkpge.pl`, `power-outage.gkpge.pl`)
 - Author: @gregopl. <a href="https://www.buymeacoffee.com/gregopl" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 27px !important;width: 98px !important;" ></a>
+
+# Advanced usage
+
+## Card example
+Adding a card on HA dashboard showing planned and active outages based on <a href="https://github.com/idaho/hassio-trash-card">custom:trash-card</a>
+
+<img width="671" height="245" alt="image" src="https://github.com/user-attachments/assets/8f6d0c44-1b6f-4d33-857b-955f42356984" />
+
+
+#### Card code example:
+```yaml
+event_grouping: false
+drop_todayevents_from: "10:00:00"
+next_days: 30
+pattern:
+  - icon: mdi:alert
+    color: red
+    type: organic
+    pattern: Awaria
+    pattern_exact: false
+  - icon: mdi:alert-circle
+    color: orange
+    type: custom
+    pattern: Planowane
+card_style: chip
+alignment_style: center
+color_mode: icon
+items_per_row: 1
+refresh_rate: 5
+with_label: true
+type: custom:trash-card
+entities:
+  - calendar.<your-local-calendar>
+filter_events: false
+hide_time_range: false
+only_all_day_events: false
+use_summary: false
+grid_options:
+  columns: full
+  rows: auto
+
+```
+
+## Event updates
+Integration is by default pulling new planned outages from PGE Dystrybucja every 120 minutes.
+Update interval can be modified in "PGE Dystrybucja Outages" integration entity options.
+
+<img width="662" height="246" alt="image" src="https://github.com/user-attachments/assets/61bc6d5c-5153-43e5-a38a-6d527c2c7aac" />
+
+
+Update can be forced by reloading the integration entity.
+
+<img width="654" height="599" alt="image" src="https://github.com/user-attachments/assets/1fb97d7b-4486-40fa-8356-a75357df8c5a" />
+
