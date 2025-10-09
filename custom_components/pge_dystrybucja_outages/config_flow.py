@@ -49,6 +49,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._cand_streets: List[Tuple[str, str]] = []  # (label, sym)
         self._city_has_streets: bool | None = None
         self._small_street_list: List[Tuple[str, str]] | None = None  # for <=5 streets
+        self._small_schema = None
 
     async def _get_json(self, url: str, params: dict):
         session = async_get_clientsession(self.hass)
@@ -74,12 +75,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         streets = await self._list_city_streets(self._city_sym)
         if streets is not None and len(streets) <= 5:
             self._small_street_list = [(s.get("name"), str(s.get("symUl"))) for s in streets]
-            options = {SKIP_STREET_TOKEN: "Skip"}
+            lang = (self.hass.config.language or "en").lower()
+            label_name = "Ulice" if lang.startswith("pl") else "Streets"
+            skip_label = "Pomiń" if lang.startswith("pl") else "Skip"
+            options = {SKIP_STREET_TOKEN: skip_label}
             for name, sym in self._small_street_list:
                 options[sym] = name
-            schema = vol.Schema({vol.Required(CONF_STREET_SYM): vol.In(options)})
+            schema = vol.Schema({vol.Required(CONF_STREET_SYM, description={"name": label_name}): vol.In(options)})
             self._cand_streets = [(name, sym) for name, sym in self._small_street_list]
-            self._small_street_list = [(name, sym) for name, sym in self._small_street_list]
             self._small_schema = schema
             return True
         return False
@@ -110,7 +113,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 for c in data
                             ]
                             options = {sym: label for (label, sym) in self._cand_cities}
-                            schema = vol.Schema({vol.Required(CONF_CITY_SYM): vol.In(options)})
+                            lang = (self.hass.config.language or "en").lower()
+                            label_name = "Miasta" if lang.startswith("pl") else "Cities"
+                            schema = vol.Schema({vol.Required(CONF_CITY_SYM, description={"name": label_name}): vol.In(options)})
                             return self.async_show_form(step_id="pick_city", data_schema=schema)
                     else:
                         errors[CONF_CITY] = "city_not_found"
@@ -232,7 +237,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry):
-        # Fix deprecation: don't assign to self.config_entry directly
         self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):

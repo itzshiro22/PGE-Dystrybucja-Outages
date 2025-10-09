@@ -1,7 +1,7 @@
 {
   "domain": "pge_dystrybucja_outages",
   "name": "PGE Dystrybucja Outages",
-  "version": "0.1.4-alpha.1",
+  "version": "0.1.4-alpha.3",
   "config_flow": true,
   "documentation": "https://github.com/gregopl/PGE-Dystrybucja-Outages#readme",
   "issue_tracker": "https://github.com/gregopl/PGE-Dystrybucja-Outages/issues",

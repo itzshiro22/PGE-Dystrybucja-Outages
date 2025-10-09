@@ -2,64 +2,11 @@
   "title": "PGE Dystrybucja Wyłączenia",
   "config": {
     "step": {
-      "user": {
-        "title": "Podaj miejscowość",
-        "description": "Podaj lokalizację, aby monitorować planowane wyłączenia prądu.",
-        "data": {
-          "city": "Miasto"
-        }
-      },
-      "pick_city": {
-        "title": "Wybierz miejscowość",
-        "description": "Znaleziono kilka pozycji. Wybierz właściwą miejscowość.",
-        "data": {
-          "city_sym": "Miasta"
-        }
-      },
-      "street": {
-        "title": "Podaj ulicę",
-        "description": "Wpisz nazwę ulicy.",
-        "data": {
-          "street": "Ulica"
-        }
-      },
       "pick_street_small": {
         "title": "Wybierz ulicę lub pomiń",
         "description": "Znaleźliśmy krótką listę ulic. Wybierz jedną lub kliknij Pomiń, aby monitorować całą miejscowość.",
         "data": {
           "street_sym": "Ulice"
-        }
-      },
-      "pick_street": {
-        "title": "Wybierz ulicę",
-        "description": "Znaleziono kilka pozycji. Wybierz właściwą ulicę.",
-        "data": {
-          "street_sym": "Ulice"
-        }
-      },
-      "calendar": {
-        "title": "Wybierz kalendarz",
-        "description": "Wybierz kalendarz, do którego będą dodawane zdarzenia o wyłączeniach.",
-        "data": {
-          "calendar_entity": "Encja kalendarza"
-        }
-      }
-    },
-    "error": {
-      "city_required": "Wymagane jest podanie miasta",
-      "street_required": "Wymagane jest podanie ulicy",
-      "city_not_found": "Nie znaleziono miejscowości",
-      "street_not_found": "Nie znaleziono ulicy",
-      "calendar_required": "Wymagany wybór kalendarza",
-      "cannot_connect": "Brak połączenia z API PGE/Falcon. Sprawdź sieć i spróbuj ponownie.",
-      "unknown": "Nieoczekiwany błąd"
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "data": {
-          "scan_interval": "Interwał aktualizacji (minuty)"
         }
       }
     }
