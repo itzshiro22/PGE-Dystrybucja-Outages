@@ -82,18 +82,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return len(streets) > 0
 
     async def _maybe_small_street_flow(self) -> bool:
+        """Return True when we switched to small street flow path (menu -> list)."""
         streets = await self._list_city_streets(self._city_sym)
         if streets is not None and len(streets) <= 5:
+            # Cache a compact list we can render later (no Skip here)
             self._small_street_list = [(s.get("name"), str(s.get("symUl"))) for s in streets]
-            field_label = await self._tr("config.step.pick_street_small.data.street_sym", "Streets")
-            skip_label = await self._tr("config.step.pick_street_small.data.skip", "Skip")
-            options = [{"label": skip_label, "value": "__SKIP__"}]
-            for name, sym in self._small_street_list:
-                options.append({"label": name, "value": sym})
-            street_selector = selector({"select": {"options": options, "mode": "list"}})
-            self._small_schema = vol.Schema({
-                vol.Required(CONF_STREET_SYM, description={"name": field_label}): street_selector
-            })
+            # Jump to a MENU step so user can choose: pick list OR skip
             return True
         return False
 
@@ -115,7 +109,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 self._street_label = ""
                                 return await self.async_step_calendar()
                             if await self._maybe_small_street_flow():
-                                return self.async_show_form(step_id="pick_street_small", data_schema=self._small_schema)
+                                return await self.async_step_street_decision()
                             return await self.async_step_street()
                         else:
                             self._cand_cities = [
@@ -151,24 +145,45 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         self._street_label = ""
                         return await self.async_step_calendar()
                     if await self._maybe_small_street_flow():
-                        return self.async_show_form(step_id="pick_street_small", data_schema=self._small_schema)
+                        return await self.async_step_street_decision()
                     return await self.async_step_street()
         return self.async_abort(reason="city_required")
 
+    async def async_step_street_decision(self, user_input=None):
+        """Menu step with two buttons: pick list OR skip street."""
+        # HA will try to translate these by keys below; if no translation found,
+        # the raw keys are shown as labels.
+        return self.async_show_menu(
+            step_id="street_decision",
+            menu_options=["pick_street_small", "skip_small_street"],
+        )
+
     async def async_step_pick_street_small(self, user_input=None):
+        """Small list selection (no Skip item inside)."""
+        # Build selector with just streets
+        options = [{"label": name, "value": sym} for (name, sym) in (self._small_street_list or [])]
+        street_selector = selector({"select": {"options": options, "mode": "list"}})
+
+        field_label = await self._tr("config.step.pick_street_small.data.street_sym", "Streets")
+        schema = vol.Schema({
+            vol.Required(CONF_STREET_SYM, description={"name": field_label}): street_selector
+        })
+
         if user_input is not None:
             choice = user_input.get(CONF_STREET_SYM)
-            if choice == SKIP_STREET_TOKEN:
-                self._street_sym = None
-                self._street_label = ""
-                return await self.async_step_calendar()
-            else:
-                for (name, sym) in (self._small_street_list or []):
-                    if sym == choice:
-                        self._street_sym = sym
-                        self._street_label = name
-                        return await self.async_step_calendar()
-        return await self.async_step_street()
+            for (name, sym) in (self._small_street_list or []):
+                if sym == choice:
+                    self._street_sym = sym
+                    self._street_label = name
+                    return await self.async_step_calendar()
+
+        return self.async_show_form(step_id="pick_street_small", data_schema=schema)
+
+    async def async_step_skip_small_street(self, user_input=None):
+        """User chose to skip street (monitor entire city)."""
+        self._street_sym = None
+        self._street_label = ""
+        return await self.async_step_calendar()
 
     async def async_step_street(self, user_input=None):
         errors = {}
