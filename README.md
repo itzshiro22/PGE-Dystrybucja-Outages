@@ -1,7 +1,7 @@
 # PGE Dystrybucja Wyłączenia | PGE Dystrybucja Outages
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-blue.svg)](https://hacs.xyz/)
-![Version](https://img.shields.io/badge/version-0.1.3-green.svg)
+![Version](https://img.shields.io/badge/version-0.1.4-green)
 [![Issues](https://img.shields.io/github/issues/gregopl/PGE-Dystrybucja-Outages)](https://github.com/gregopl/PGE-Dystrybucja-Outages/issues)
 [![Stars](https://img.shields.io/github/stars/gregopl/PGE-Dystrybucja-Outages?style=social)](https://github.com/gregopl/PGE-Dystrybucja-Outages/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/gregopl/PGE-Dystrybucja-Outages/blob/main/LICENSE)
@@ -14,7 +14,7 @@ Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne prze
 ### Funkcje
 - Sensor pokazujący **liczbę godzin do najbliższego wyłączenia** (wartość zaokrąglona w dół).
 - Wszystkie znalezione zdarzenia dodawane są do wskazanego **kalendarza** (tytuły: _PGE Wyłączenie: Planowane_ / _PGE Wyłączenie: Awaria_).
-- **Wielostopniowa konfiguracja** z weryfikacją miejscowości i ulicy przez API.
+- **Wielostopniowa konfiguracja** z weryfikacją miejscowości i ulicy przez API PGE.
 - Możliwość monitorowania wielu miast i ulic.
 - Blokada duplikatów.
 
@@ -26,7 +26,9 @@ Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne prze
 ### Instalacja przez HACS (repozytorium niestandardowe)
 1. HACS → **Niestandardowe repozytoria**.
 2. Repozytorium: `https://github.com/gregopl/PGE-Dystrybucja-Outages`; **Typ:** Integracja.
-3. Zainstaluj, zrestartuj HA, dodaj integrację.
+3. Kliknij **POBIERZ**.
+4. Zrestartuj Home Assistant.
+5. Dodaj integrację w **Ustawienia → Urządzenia i Usługi**.
 
 ### Konfiguracja
 - Krok 1: Stwórz lokalny kalendarz w HA
@@ -51,7 +53,7 @@ Custom integration for Home Assistant that fetches planned/active power outages 
 ### Features
 - A sensor showing **number of hours until the next outage** (floored).
 - Adds **all found outages** to the selected **calendar** (titles: _PGE Wyłączenie: Planowane_ / _PGE Wyłączenie: Awaria_).
-- **Multi-step configuration** with city & street validation via the public API.
+- **Multi-step configuration** with city & street validation via the public PGE API.
 - You can monitor **multiple cities and streets** (add multiple instances).
 - **Duplicate protection** (same city + street can be added only once).
 
@@ -63,7 +65,9 @@ Custom integration for Home Assistant that fetches planned/active power outages 
 ### HACS (as a custom repository)
 1. HACS → Integrations → **Custom repositories**.
 2. Add repo URL: `https://github.com/gregopl/PGE-Dystrybucja-Outages`, Category: **Integration**.
-3. Install, restart HA, add the integration.
+3. Click **DOWNLOAD**.
+4. Restart Home Assistant.
+5. Add the integration from **Settings → Devices & Services**.
 
 ### Configuration
 - Step 1: Create local calendar in HA

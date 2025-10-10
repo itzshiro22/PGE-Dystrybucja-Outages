@@ -30,6 +30,9 @@ OPTIONS_SCHEMA = vol.Schema({
     vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
 })
 
+SKIP_STREET_TOKEN = "__SKIP__"
+SKIP_LABEL_BILINGUAL = "Pomiń / Skip"
+
 def _strip_sym(label: str) -> str:
     pos = label.rfind(" [")
     return label[:pos] if pos != -1 and label.endswith("]") else label
@@ -46,23 +49,55 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._cand_cities: List[Tuple[str, str]] = []  # (label, sym)
         self._cand_streets: List[Tuple[str, str]] = []  # (label, sym)
         self._city_has_streets: bool | None = None
+        self._small_street_list: List[Tuple[str, str]] | None = None  # for <=5 streets
+        self._small_schema = None
 
     async def _get_json(self, url: str, params: dict):
         session = async_get_clientsession(self.hass)
         async with session.get(url, params=params, headers=HEADERS, timeout=TIMEOUT) as resp:
             return await resp.json(content_type=None)
 
-    async def _check_city_has_streets(self, city_sym: str) -> bool:
-        """Return True if Falcon reports at least one street for the city.
-        We call with empty name; if API returns a list with length > 0, consider it has streets.
-        If API shape is unexpected, default to True (keep old behavior).
-        """
+    async def _tr(self, key_suffix: str, default: str) -> str:
+        try:
+            from homeassistant.helpers.translation import async_get_translations
+            lang = (self.hass.config.language or "en").lower()
+            tr = await async_get_translations(self.hass, lang, category="component", integrations=[DOMAIN])
+            key = f"component.{DOMAIN}.{key_suffix}"
+            return tr.get(key, default)
+        except Exception:
+            return default
+
+    async def _list_city_streets(self, city_sym: str):
         try:
             data = await self._get_json(f"{FALCON_BASE}/street", {"citySym": city_sym, "name": ""})
-            return isinstance(data, list) and len(data) > 0
+            if isinstance(data, list):
+                return data
         except Exception:
-            # On any error, assume streets exist to keep normal flow
+            pass
+        return None
+
+    async def _check_city_has_streets(self, city_sym: str) -> bool:
+        streets = await self._list_city_streets(city_sym)
+        if streets is None:
             return True
+        return len(streets) > 0
+
+    async def _maybe_small_street_flow(self) -> bool:
+        streets = await self._list_city_streets(self._city_sym)
+        if streets is not None and len(streets) <= 5:
+            self._small_street_list = [(s.get("name"), str(s.get("symUl"))) for s in streets]
+
+            # Build selector options with streets first, then 'Pomiń / Skip' at the bottom
+            options = [{"label": name, "value": sym} for (name, sym) in self._small_street_list]
+            options.append({"label": SKIP_LABEL_BILINGUAL, "value": SKIP_STREET_TOKEN})
+
+            field_label = await self._tr("config.step.pick_street_small.data.street_sym", "Streets")
+            street_selector = selector({"select": {"options": options, "mode": "list"}})
+            self._small_schema = vol.Schema({
+                vol.Required(CONF_STREET_SYM, description={"name": field_label}): street_selector
+            })
+            return True
+        return False
 
     async def async_step_user(self, user_input=None):
         errors = {}
@@ -77,20 +112,21 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             self._city_sym = str(c.get("citySym"))
                             self._city_label = f"{c.get('voivodeshipName')} / {c.get('countyName')} / {c.get('cityName')}"
                             self._city_has_streets = await self._check_city_has_streets(self._city_sym)
-                            if self._city_has_streets:
-                                return await self.async_step_street()
-                            else:
-                                # Skip street step, proceed to calendar
+                            if not self._city_has_streets:
                                 self._street_sym = None
                                 self._street_label = ""
                                 return await self.async_step_calendar()
+                            if await self._maybe_small_street_flow():
+                                return self.async_show_form(step_id="pick_street_small", data_schema=self._small_schema)
+                            return await self.async_step_street()
                         else:
                             self._cand_cities = [
                                 (f"{c.get('voivodeshipName')} / {c.get('countyName')} / {c.get('cityName')} [{c.get('citySym')}]", str(c.get('citySym')))
                                 for c in data
                             ]
                             options = {sym: label for (label, sym) in self._cand_cities}
-                            schema = vol.Schema({vol.Required(CONF_CITY_SYM): vol.In(options)})
+                            label_name = await self._tr("config.step.pick_city.data.city_sym", "Cities")
+                            schema = vol.Schema({vol.Required(CONF_CITY_SYM, description={"name": label_name}): vol.In(options)})
                             return self.async_show_form(step_id="pick_city", data_schema=schema)
                     else:
                         errors[CONF_CITY] = "city_not_found"
@@ -112,17 +148,33 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     self._city_sym = s
                     self._city_label = _strip_sym(label)
                     self._city_has_streets = await self._check_city_has_streets(self._city_sym)
-                    if self._city_has_streets:
-                        return await self.async_step_street()
-                    else:
+                    if not self._city_has_streets:
                         self._street_sym = None
                         self._street_label = ""
                         return await self.async_step_calendar()
+                    if await self._maybe_small_street_flow():
+                        return self.async_show_form(step_id="pick_street_small", data_schema=self._small_schema)
+                    return await self.async_step_street()
         return self.async_abort(reason="city_required")
+
+    async def async_step_pick_street_small(self, user_input=None):
+        if user_input is not None:
+            choice = user_input.get(CONF_STREET_SYM)
+            if choice == SKIP_STREET_TOKEN:
+                self._street_sym = None
+                self._street_label = ""
+                return await self.async_step_calendar()
+            else:
+                for (name, sym) in (self._small_street_list or []):
+                    if sym == choice:
+                        self._street_sym = sym
+                        self._street_label = name
+                        return await self.async_step_calendar()
+
+        return self.async_show_form(step_id="pick_street_small", data_schema=self._small_schema)
 
     async def async_step_street(self, user_input=None):
         errors = {}
-        # If a previous check determined there are no streets, skip
         if self._city_has_streets is False:
             self._street_sym = None
             self._street_label = ""
@@ -197,7 +249,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry):
-        self.config_entry = config_entry
+        self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         if user_input is not None:
