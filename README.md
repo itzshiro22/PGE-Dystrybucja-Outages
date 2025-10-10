@@ -1,7 +1,7 @@
 # PGE Dystrybucja Wyłączenia | PGE Dystrybucja Outages
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-blue.svg)](https://hacs.xyz/)
-![Version](https://img.shields.io/badge/version-0.1.4--alpha-red)
+![Version](https://img.shields.io/badge/version-0.1.4-green)
 [![Issues](https://img.shields.io/github/issues/gregopl/PGE-Dystrybucja-Outages)](https://github.com/gregopl/PGE-Dystrybucja-Outages/issues)
 [![Stars](https://img.shields.io/github/stars/gregopl/PGE-Dystrybucja-Outages?style=social)](https://github.com/gregopl/PGE-Dystrybucja-Outages/stargazers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/gregopl/PGE-Dystrybucja-Outages/blob/main/LICENSE)
