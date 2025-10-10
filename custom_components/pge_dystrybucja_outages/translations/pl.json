@@ -6,14 +6,14 @@
         "title": "Podaj miejscowość",
         "description": "Podaj lokalizację, aby monitorować planowane wyłączenia prądu.",
         "data": {
-          "city": "Miasto"
+          "city": "Miejscowość"
         }
       },
       "pick_city": {
         "title": "Wybierz miejscowość",
         "description": "Znaleziono kilka pozycji. Wybierz właściwą miejscowość.",
         "data": {
-          "city_sym": "Miasta"
+          "city_sym": "Miejscowości"
         }
       },
       "street": {
@@ -47,7 +47,7 @@
       }
     },
     "error": {
-      "city_required": "Wymagane jest podanie miasta",
+      "city_required": "Wymagane jest podanie miejscowości",
       "street_required": "Wymagane jest podanie ulicy",
       "city_not_found": "Nie znaleziono miejscowości",
       "street_not_found": "Nie znaleziono ulicy",
