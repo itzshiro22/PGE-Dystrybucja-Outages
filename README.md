@@ -9,13 +9,13 @@
 
 ## 🇵🇱 PL (Polski)
 
-Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne przerwy w dostawie prądu dla wybranego **miasta + ulicy** z **PGE Dystrybucja**.
+Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne przerwy w dostawie prądu dla wybranej **miejscowości + ulicy** z **PGE Dystrybucja**.
 
 ### Funkcje
 - Sensor pokazujący **liczbę godzin do najbliższego wyłączenia** (wartość zaokrąglona w dół).
 - Wszystkie znalezione zdarzenia dodawane są do wskazanego **kalendarza** (tytuły: _PGE Wyłączenie: Planowane_ / _PGE Wyłączenie: Awaria_).
 - **Wielostopniowa konfiguracja** z weryfikacją miejscowości i ulicy przez API PGE.
-- Możliwość monitorowania wielu miast i ulic.
+- Możliwość monitorowania wielu miejscowości i ulic.
 - Blokada duplikatów.
 
 ### Instalacja (ręczna)
@@ -35,7 +35,7 @@ Niestandardowa integracja dla Home Assistant pobierająca planowane/aktywne prze
 - Krok 2: Podaj nazwę miejscowości  
 - Krok 3: Podaj nazwę ulicy  
 - Krok 4: Wybierz encję lokalnego kalendarza, do którego zostaną dodane zdarzenia. (**WYMAGANE**)
-- Każda kombinacja `miasto + ulica` może być dodana tylko raz.
+- Każda kombinacja `miejscowość + ulica` może być dodana tylko raz.
 
 ### Wymagania / ikony
 - Brak dodatkowych zależności (korzysta z bibliotek HA).
