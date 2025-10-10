@@ -56,6 +56,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         async with session.get(url, params=params, headers=HEADERS, timeout=TIMEOUT) as resp:
             return await resp.json(content_type=None)
 
+    async def _tr(self, key_suffix: str, default: str) -> str:
+        try:
+            from homeassistant.helpers.translation import async_get_translations
+            lang = (self.hass.config.language or "en").lower()
+            tr = await async_get_translations(self.hass, lang, category="component", integrations=[DOMAIN])
+            key = f"component.{DOMAIN}.{key_suffix}"
+            return tr.get(key, default)
+        except Exception:
+            return default
+
     async def _list_city_streets(self, city_sym: str):
         try:
             data = await self._get_json(f"{FALCON_BASE}/street", {"citySym": city_sym, "name": ""})
@@ -75,21 +85,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         streets = await self._list_city_streets(self._city_sym)
         if streets is not None and len(streets) <= 5:
             self._small_street_list = [(s.get("name"), str(s.get("symUl"))) for s in streets]
-
-            lang = (self.hass.config.language or "en").lower()
-            skip_label = "Pomin" if lang.startswith("pl") else "Skip"
-
-            options = [{"label": skip_label, "value": SKIP_STREET_TOKEN}]
+            field_label = await self._tr("config.step.pick_street_small.data.street_sym", "Streets")
+            skip_label = await self._tr("config.step.pick_street_small.data.skip", "Skip")
+            options = [{"label": skip_label, "value": "__SKIP__"}]
             for name, sym in self._small_street_list:
                 options.append({"label": name, "value": sym})
-
-            street_selector = selector({
-                "select": {
-                    "options": options,
-                    "mode": "list"
-                }
+            street_selector = selector({"select": {"options": options, "mode": "list"}})
+            self._small_schema = vol.Schema({
+                vol.Required(CONF_STREET_SYM, description={"name": field_label}): street_selector
             })
-            self._small_schema = vol.Schema({vol.Required(CONF_STREET_SYM): street_selector})
             return True
         return False
 
@@ -119,7 +123,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 for c in data
                             ]
                             options = {sym: label for (label, sym) in self._cand_cities}
-                            schema = vol.Schema({vol.Required(CONF_CITY_SYM): vol.In(options)})
+                            label_name = await self._tr("config.step.pick_city.data.city_sym", "Cities")
+                            schema = vol.Schema({vol.Required(CONF_CITY_SYM, description={"name": label_name}): vol.In(options)})
                             return self.async_show_form(step_id="pick_city", data_schema=schema)
                     else:
                         errors[CONF_CITY] = "city_not_found"
