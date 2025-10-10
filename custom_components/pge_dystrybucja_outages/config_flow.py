@@ -31,6 +31,7 @@ OPTIONS_SCHEMA = vol.Schema({
 })
 
 SKIP_STREET_TOKEN = "__SKIP__"
+SKIP_LABEL_BILINGUAL = "Pomiń / Skip"
 
 def _strip_sym(label: str) -> str:
     pos = label.rfind(" [")
@@ -86,16 +87,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if streets is not None and len(streets) <= 5:
             self._small_street_list = [(s.get("name"), str(s.get("symUl"))) for s in streets]
 
-            # Build selector options with an extra "Entire city / Cała miejscowość" entry
-            lang = (self.hass.config.language or "en").lower()
-            entire_city = "Cała miejscowość" if lang.startswith("pl") else "Entire city"
-
-            options = [{"label": entire_city, "value": SKIP_STREET_TOKEN}]
-            for name, sym in self._small_street_list:
-                options.append({"label": name, "value": sym})
+            # Build selector options with streets first, then 'Pomiń / Skip' at the bottom
+            options = [{"label": name, "value": sym} for (name, sym) in self._small_street_list]
+            options.append({"label": SKIP_LABEL_BILINGUAL, "value": SKIP_STREET_TOKEN})
 
             field_label = await self._tr("config.step.pick_street_small.data.street_sym", "Streets")
-
             street_selector = selector({"select": {"options": options, "mode": "list"}})
             self._small_schema = vol.Schema({
                 vol.Required(CONF_STREET_SYM, description={"name": field_label}): street_selector
@@ -162,7 +158,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_abort(reason="city_required")
 
     async def async_step_pick_street_small(self, user_input=None):
-        # Handle selection from small list (including Entire city / Cała miejscowość)
         if user_input is not None:
             choice = user_input.get(CONF_STREET_SYM)
             if choice == SKIP_STREET_TOKEN:
@@ -176,7 +171,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         self._street_label = name
                         return await self.async_step_calendar()
 
-        # If the user hasn't selected yet, render the form prepared in _maybe_small_street_flow
         return self.async_show_form(step_id="pick_street_small", data_schema=self._small_schema)
 
     async def async_step_street(self, user_input=None):
