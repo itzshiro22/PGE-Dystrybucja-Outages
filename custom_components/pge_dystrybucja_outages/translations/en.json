@@ -27,7 +27,8 @@
         "title": "Select street or skip",
         "description": "We found a short list of streets. Pick one or choose Skip to monitor the whole city.",
         "data": {
-          "street_sym": "Streets"
+          "street_sym": "Streets",
+          "skip": "Skip"
         }
       },
       "pick_street": {

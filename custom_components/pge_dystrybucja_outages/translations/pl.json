@@ -27,7 +27,8 @@
         "title": "Wybierz ulicę lub pomiń",
         "description": "Znaleźliśmy krótką listę ulic. Wybierz jedną lub kliknij Pomiń, aby monitorować całą miejscowość.",
         "data": {
-          "street_sym": "Ulice"
+          "street_sym": "Ulice",
+          "skip": "Pomiń"
         }
       },
       "pick_street": {

@@ -50,11 +50,27 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._city_has_streets: bool | None = None
         self._small_street_list: List[Tuple[str, str]] | None = None  # for <=5 streets
         self._small_schema = None
+        self._translations = None
 
     async def _get_json(self, url: str, params: dict):
         session = async_get_clientsession(self.hass)
         async with session.get(url, params=params, headers=HEADERS, timeout=TIMEOUT) as resp:
             return await resp.json(content_type=None)
+
+    async def _get_tr(self, key_suffix: str, fallback_en: str, fallback_pl: str) -> str:
+        lang = (self.hass.config.language or "en").lower()
+        try:
+            if self._translations is None:
+                from homeassistant.helpers.translation import async_get_translations
+                self._translations = await async_get_translations(
+                    self.hass, lang, category="component", integrations=[DOMAIN]
+                )
+            key = f"component.{DOMAIN}.{key_suffix}"
+            if (val := self._translations.get(key)):
+                return val
+        except Exception:
+            pass
+        return fallback_pl if lang.startswith("pl") else fallback_en
 
     async def _list_city_streets(self, city_sym: str):
         try:
@@ -76,20 +92,17 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if streets is not None and len(streets) <= 5:
             self._small_street_list = [(s.get("name"), str(s.get("symUl"))) for s in streets]
 
-            # Resolve field label via strings.json i18n (HA will render it),
-            # but for the Skip label we enforce Polish when label is Polish.
-            field_label = "Streets"
-            try:
-                from homeassistant.helpers.translation import async_get_translations
-                lang = (self.hass.config.language or "en").lower()
-                tr = await async_get_translations(self.hass, lang, category="component", integrations=[DOMAIN])
-                key = f"component.{DOMAIN}.config.step.pick_street_small.data.street_sym"
-                field_label = tr.get(key, field_label)
-            except Exception:
-                pass
-
-            # Force POMIŃ when the field label is Polish (contains 'Ulice'), else 'Skip'
-            skip_label = "Pomiń" if "ulice" in field_label.lower() else "Skip"
+            # Field label & Skip from translations
+            field_label = await self._get_tr(
+                "config.step.pick_street_small.data.street_sym",
+                fallback_en="Streets",
+                fallback_pl="Ulice",
+            )
+            skip_label = await self._get_tr(
+                "config.step.pick_street_small.data.skip",
+                fallback_en="Skip",
+                fallback_pl="Pomiń",
+            )
 
             options = [{"label": skip_label, "value": SKIP_STREET_TOKEN}]
             for name, sym in self._small_street_list:
@@ -128,19 +141,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 for c in data
                             ]
                             options = {sym: label for (label, sym) in self._cand_cities}
-
-                            # Give a nicer label for the city picker
-                            city_label = "Cities"
-                            try:
-                                from homeassistant.helpers.translation import async_get_translations
-                                lang = (self.hass.config.language or "en").lower()
-                                tr = await async_get_translations(self.hass, lang, category="component", integrations=[DOMAIN])
-                                key = f"component.{DOMAIN}.config.step.pick_city.data.city_sym"
-                                city_label = tr.get(key, city_label)
-                            except Exception:
-                                pass
-
-                            schema = vol.Schema({vol.Required(CONF_CITY_SYM, description={"name": city_label}): vol.In(options)})
+                            label_name = await self._get_tr(
+                                "config.step.pick_city.data.city_sym",
+                                fallback_en="Cities",
+                                fallback_pl="Miasta",
+                            )
+                            schema = vol.Schema({vol.Required(CONF_CITY_SYM, description={"name": label_name}): vol.In(options)})
                             return self.async_show_form(step_id="pick_city", data_schema=schema)
                     else:
                         errors[CONF_CITY] = "city_not_found"
